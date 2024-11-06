@@ -19,22 +19,21 @@ pip install tqdm neuraloperator
 
 Run the following two files to reproduce the training procedure.
 
-This will first generation the data by numerical successive approximation, and train the model.
-
-You can download the pkl files of numerical simulation results via
-this [link](https://drive.google.com/drive/folders/15C2AIQwt9kxbp5cUBm_CtYvxdMWUn5LI?usp=sharing) and put them to
-directories named 'data/<system>/'.
-
-To save time, the data generation is turned off by default in our script.
-
 ```shell
 python -s Baxter train.py
 python -s Unicycle train.py
 ```
 
+This will first generation the data by numerical successive approximation, and train the model.
+
 The model will be saved as '<system>.pth'.
 
 The model is available in the repository, and you can skip this step.
+
+To save time, the data generation is turned off by default in our script.
+You can download the pkl files of numerical simulation results directly via
+this [link](https://drive.google.com/drive/folders/15C2AIQwt9kxbp5cUBm_CtYvxdMWUn5LI?usp=sharing) and put them to
+directories named 'data/<system>/'.
 
 ### Model evaluation
 
