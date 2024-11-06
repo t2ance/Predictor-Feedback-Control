@@ -23,8 +23,8 @@ class FNOProjection(torch.nn.Module):
 
         x = torch.concatenate([u, repeated_z], -1)
         x = self.fno(x.transpose(1, 2))
-        outs = x.transpose(1, 2)[:, -1, :]
-        out = outs
+        outs = x.transpose(1, 2)
+        out = outs[:, -1, :]
         if label is not None:
             return out, self.mse_loss(outs, label)
         else:

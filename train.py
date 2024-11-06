@@ -7,7 +7,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import torch
 from tqdm import tqdm
-
+import pickle
+import os
 import config
 from config import DatasetConfig, ModelConfig, TrainConfig
 from dynamic_systems import model_forward, DynamicSystem, solve_integral
@@ -148,8 +149,7 @@ def to_batched_data(batch, device='cuda'):
 def create_simulation_result(dataset_config: DatasetConfig, n_dataset: int = None, test_points=None):
     results = []
     if test_points is None:
-        test_points = dataset_config.get_initial_points(
-            n_point=n_dataset, lower_bound=dataset_config.ic_lower_bound, upper_bound=dataset_config.ic_upper_bound)
+        test_points = dataset_config.get_initial_points(n_point=n_dataset)
 
     print(f'Creating simulation results with {len(test_points)} test points')
     print('Sample test point', test_points[0])
@@ -173,10 +173,10 @@ def run_training(model_config: ModelConfig, train_config: TrainConfig, training_
     optimizer = load_optimizer(model.parameters(), train_config)
     scheduler = load_lr_scheduler(optimizer, train_config)
     model.train()
-    print(f'Training trajectories: {len(training_dataset)}, Validating trajectories: {len(validation_dataset)}')
+    print(f'Training trajectories: {len(training_dataset)}, Validation trajectories: {len(validation_dataset)}')
     training_samples = [sample for traj in training_dataset for sample in traj]
-    validating_samples = [sample for traj in validation_dataset for sample in traj]
-    print(f'Training samples: {len(training_samples)}, Number of validation samples: {len(validating_samples)}')
+    validation_samples = [sample for traj in validation_dataset for sample in traj]
+    print(f'Training samples: {len(training_samples)}, Number of validation samples: {len(validation_samples)}')
     for epoch in range(train_config.n_epoch):
         print(f'Epoch {epoch}')
         np.random.shuffle(training_samples)
@@ -194,13 +194,14 @@ def run_training(model_config: ModelConfig, train_config: TrainConfig, training_
 
         with torch.no_grad():
             n_iters = 0
-            validating_loss = 0.0
-            for dataset_idx in tqdm(list(range(0, len(validating_samples), batch_size))):
-                batch = validating_samples[dataset_idx:dataset_idx + batch_size]
+            validation_loss = 0.0
+            for dataset_idx in tqdm(list(range(0, len(validation_samples), batch_size))):
+                batch = validation_samples[dataset_idx:dataset_idx + batch_size]
                 _, loss = model(**to_batched_data(batch, device))
-                validating_loss += loss.detach().item()
+                validation_loss += loss.detach().item()
                 n_iters += 1
-            validating_loss /= n_iters
+            validation_loss /= n_iters
+        print(f'Training loss [{training_loss}], Validation loss [{validation_loss}]')
         scheduler.step()
 
     return model
@@ -254,12 +255,22 @@ def run_test(m, dataset_config: DatasetConfig, method: str, base_path: str = Non
 
 
 def load_dataset(dataset_config):
-    print('Begin generating training dataset...')
-    training_results = create_simulation_result(
-        dataset_config, n_dataset=dataset_config.n_training_dataset)
-    print('Begin generating validation dataset...')
-    validation_results = create_simulation_result(
-        dataset_config, n_dataset=dataset_config.n_validation_dataset)
+    if dataset_config.generate:
+        print('Begin generating training dataset...')
+        training_results = create_simulation_result(
+            dataset_config, n_dataset=dataset_config.n_training_dataset)
+        print('Begin generating validation dataset...')
+        validation_results = create_simulation_result(
+            dataset_config, n_dataset=dataset_config.n_validation_dataset)
+    else:
+        print('Loading data...')
+
+        def read(dataset_dir, split):
+            with open(os.path.join(dataset_dir, split + ".pkl"), mode="rb") as file:
+                return pickle.load(file)
+
+        training_results = read(f'./data/{dataset_config.system_}', 'training')
+        validation_results = read(f'./data/{dataset_config.system_}', 'validation')
 
     training_dataset = [result_to_samples(result, dataset_config) for result in training_results]
     validation_dataset = [result_to_samples(result, dataset_config) for result in validation_results]

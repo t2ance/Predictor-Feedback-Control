@@ -42,6 +42,7 @@ class DatasetConfig:
     duration: Optional[int] = field(default=8)
     dt: Optional[float] = field(default=0.125)
 
+    generate: Optional[bool] = field(default=False)
     successive_approximation_threshold: Optional[float] = field(default=1e-7)
 
     ic_lower_bound: Optional[float] = field(default=-2)
@@ -100,7 +101,7 @@ class DatasetConfig:
     @property
     def n_point(self) -> int:
         return self.n_point_delay + self.n_point_duration
-    
+
     @property
     def n_point_delay(self) -> int:
         return int(round(self.delay / self.dt))
