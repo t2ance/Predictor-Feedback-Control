@@ -33,7 +33,7 @@ The model is available in the repository, and you can skip this step.
 To save time, the data generation is turned off by default in our script.
 You can download the pkl files of numerical simulation results directly via
 this [link](https://drive.google.com/drive/folders/15C2AIQwt9kxbp5cUBm_CtYvxdMWUn5LI?usp=sharing) and put them to
-directories named 'data/<system>/'.
+directories named 'data/\<system\>/'.
 
 ### Model evaluation
 
