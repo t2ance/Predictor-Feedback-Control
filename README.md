@@ -7,8 +7,7 @@ The source code for the paper titled _Neural operators for predictor feedback co
 We mainly rely on [pytorch](https://pytorch.org/).
 Please first install pytorch following the instruction from the website.
 
-Besides, two packages are required.
-
+Besides, two packages are required and installed by
 ```
 pip install tqdm neuraloperator
 ```
@@ -17,35 +16,29 @@ pip install tqdm neuraloperator
 
 ### Model training
 
-Run the following two files to reproduce the training procedure.
+Run the following file with different model architecture to reproduce the training procedure.
 
 ```shell
-python -s Baxter train.py
-python -s Unicycle train.py
+python train.py -model_name FNO 
 ```
+Available architectures are FNO, DeepONet, GRU, LSTM, FNO+GRU, and DeepONet+GRU.
 
-This will first generation the data by numerical successive approximation, and train the model.
-
-The model will be saved as '<system>.pth'.
-
-The model is available in the repository, and you can skip this step.
+This will first generation the data by numerical successive approximation, and then train the model.
+The models' weights are saved as '<system>.pth'. The weights are already available in this repository, and you may skip this step.
 
 To save time, the data generation is turned off by default in our script.
 You can download the pkl files of numerical simulation results directly via
 this [link](https://drive.google.com/drive/folders/15C2AIQwt9kxbp5cUBm_CtYvxdMWUn5LI?usp=sharing) and put them to
-directories named 'data/<system>/'.
+directories named 'data/Baxter/'.
 
 ### Model evaluation
 
 After saving the model, you can evaluate the model and reproduce the figures presented in the paper by
 
 ```shell
-python evaluate.py -s Baxter
-python evaluate.py -s Unicycle
+python evaluate.py -model_name FNO
 ```
-
 This will plot 25 figures for different initial conditions.
-The first figures for each system are presented in our paper.
 
 ## License
 

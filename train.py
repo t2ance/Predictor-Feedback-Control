@@ -306,10 +306,10 @@ def main(dataset_config: DatasetConfig, model_config: ModelConfig, train_config:
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('-s', type=str, default='Baxter')
+    parser.add_argument('-model_name', type=str, default='FNO')
 
     args = parser.parse_args()
-    dataset_config_, model_config_, train_config_ = config.get_config(system_=args.s)
+    dataset_config_, model_config_, train_config_ = config.get_config(model_name=args.model_name)
 
     print_args(dataset_config_)
     print_args(model_config_)

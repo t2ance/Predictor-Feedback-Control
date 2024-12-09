@@ -33,32 +33,6 @@ class DynamicSystem:
         ...
 
 
-class Unicycle(DynamicSystem):
-    @property
-    def n_state(self):
-        return 3
-
-    @property
-    def n_input(self):
-        return 2
-
-    def dynamic(self, Z_t, t, U_delay):
-        x, y, theta = Z_t
-        omega, nu = U_delay
-        x_dot = nu * np.cos(theta)
-        y_dot = nu * np.sin(theta)
-        theta_dot = omega
-        return np.array([x_dot, y_dot, theta_dot])
-
-    def kappa(self, Z_t, t):
-        x, y, theta = Z_t
-        p = x * np.cos(theta) + y * np.sin(theta)
-        q = x * np.sin(theta) - y * np.cos(theta)
-        omega = -5 * p ** 2 * np.cos(3 * t) - p * q * (1 + 25 * np.cos(3 * t) ** 2) - theta
-        nu = -p + 5 * q * (np.sin(3 * t) - np.cos(3 * t)) + q * omega
-        return np.array([omega, nu])
-
-
 class Baxter(DynamicSystem):
 
     @property
@@ -67,7 +41,7 @@ class Baxter(DynamicSystem):
 
     @property
     def n_state(self):
-        return self.dof * 2  # dof dimensions for e1 and dof dimensions for e2
+        return self.dof * 2
 
     def __init__(self, alpha=1, beta=1, dof: int = 7, f: float = 0.1, magnitude: float = 0.2):
         assert 1 <= dof <= 7

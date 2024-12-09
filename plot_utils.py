@@ -1,4 +1,3 @@
-import numpy as np
 from matplotlib import pyplot as plt
 from matplotlib.lines import Line2D
 from matplotlib.ticker import MaxNLocator
@@ -175,12 +174,7 @@ def plot_difference(ts, Ps, Z, n_point_delay, save_path, ylim=None, Ps_labels=No
     if ylim is not None:
         try:
             ax.set_yscale('log')
-            # y_locator = LogLocator(base=10.0, numticks=5)
-            # ax.yaxis.set_major_locator(y_locator)
-            # ax.yaxis.set_major_formatter(LogFormatterMathtext())
-            # ax.set_ylim([0, ylim[1]])
             ax.set_yticks([1e-6, 1e-4, 1e-2, 1])
-            # ax.set_ylim([0, 100])
         except:
             ...
     if xlim is not None:

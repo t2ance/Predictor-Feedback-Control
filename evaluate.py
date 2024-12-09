@@ -17,16 +17,11 @@ def figure_bounds(min_, max_):
 
 
 def plot_base(plot_name, dataset_config, system, Ps, Zs, Ds, Us, labels, captions, results):
-    if system == 'Baxter':
-        Ps = [P[:, 4:5] for P in Ps]
-        Zs = [Z[:, 4:5] for Z in Zs]
-        Ds = [D[:, 4:5] for D in Ds]
-        Us = [U[:, 4:5] for U in Us]
-        n_row = 4
-    elif system == 'Unicycle':
-        n_row = 3
-    else:
-        raise NotImplementedError()
+    Ps = [P[:, 4:5] for P in Ps]
+    Zs = [Z[:, 4:5] for Z in Zs]
+    Ds = [D[:, 4:5] for D in Ds]
+    Us = [U[:, 4:5] for U in Us]
+    n_row = 4
 
     n_col = len(labels)
     ts = dataset_config.ts
@@ -113,7 +108,7 @@ def plot_base(plot_name, dataset_config, system, Ps, Zs, Ds, Us, labels, caption
     return results_dict
 
 
-def plot_comparisons(test_point, plot_name, dataset_config, system, model=None):
+def plot_comparisons(test_point, plot_name, dataset_config, system='Baxter', model=None):
     Ps = []
     Zs = []
     Ds = []
@@ -158,20 +153,20 @@ if __name__ == '__main__':
     import argparse
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('-s', type=str, default='Baxter')
+    parser.add_argument('-model_name', type=str, default='DeepONet+GRU')
     args = parser.parse_args()
 
-    dataset_config, model_config, train_config = config.get_config(system_=args.s)
+    dataset_config, model_config, train_config = config.get_config(model_name=args.model_name)
     # Add some noise (or not)
     dataset_config.noise_epsilon = 0.
 
     model = load_model(train_config, model_config, dataset_config)
-    model.load_state_dict(torch.load(f'./{dataset_config.system_}.pth'))
+    model.load_state_dict(torch.load(f'./{args.model_name}.pth', map_location=train_config.device))
 
     for i, test_point in enumerate(dataset_config.test_points):
-        plot_name = f'{args.s}-{i}'
+        plot_name = f'{args.model_name}-{i}'
         print(f'{i}-th test point', test_point)
 
         result_dict = plot_comparisons(
-            test_point, plot_name, dataset_config, system=args.s, model=model
+            test_point, plot_name, dataset_config, model=model
         )

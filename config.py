@@ -13,6 +13,15 @@ class ModelConfig:
     fno_n_modes_height: Optional[int] = field(default=16)
     fno_hidden_channels: Optional[int] = field(default=32)
     fno_n_layer: Optional[int] = field(default=4)
+    deeponet_hidden_size: Optional[int] = field(default=64)
+    deeponet_n_layer: Optional[int] = field(default=5)
+
+    gru_n_layer: Optional[int] = field(default=4)
+    gru_hidden_size: Optional[int] = field(default=64)
+    lstm_n_layer: Optional[int] = field(default=4)
+    lstm_hidden_size: Optional[int] = field(default=64)
+
+    model_name: Optional[str] = field(default='FNO')
     system: Optional[str] = field(default='Baxter')
 
     @property
@@ -89,8 +98,6 @@ class DatasetConfig:
         if self.system_ == 'Baxter':
             return dynamic_systems.Baxter(alpha=self.baxter_alpha, beta=self.baxter_beta, dof=self.baxter_dof,
                                           f=self.baxter_f, magnitude=self.baxter_magnitude)
-        elif self.system_ == 'Unicycle':
-            return dynamic_systems.Unicycle()
         else:
             raise NotImplementedError('Unknown system', self.system_)
 
@@ -116,26 +123,33 @@ class DatasetConfig:
         return np.random.randn() * self.noise_epsilon
 
 
-def get_config(system_):
-    if system_ == 'Baxter':
-        dataset_config = DatasetConfig(system_='Baxter', delay=0.5, duration=8, dt=0.02, n_training_dataset=600,
-                                       n_validation_dataset=100, baxter_dof=5, baxter_f=1, baxter_magnitude=0.1,
-                                       baxter_alpha=1, baxter_beta=2, ic_lower_bound=0, ic_upper_bound=1,
-                                       random_test_lower_bound=0, random_test_upper_bound=1)
+def get_config(model_name):
+    dataset_config = DatasetConfig(
+        system_='Baxter', delay=0.5, duration=8, dt=0.02, n_training_dataset=600, n_validation_dataset=100,
+        baxter_dof=5, baxter_f=1, baxter_magnitude=0.1, baxter_alpha=1, baxter_beta=2, ic_lower_bound=0,
+        ic_upper_bound=1, random_test_lower_bound=0, random_test_upper_bound=1)
+    if model_name == 'FNO':
         model_config = ModelConfig(fno_n_layer=2, fno_hidden_channels=128, fno_n_modes_height=20)
-        train_config = TrainConfig(n_epoch=100, learning_rate=3e-3, weight_decay=2e-6, batch_size=2048)
-    elif system_ == 'Unicycle':
-        dataset_config = DatasetConfig(system_='Unicycle', delay=1, duration=8, dt=0.002, n_training_dataset=500,
-                                       n_validation_dataset=100, ic_lower_bound=0, ic_upper_bound=1,
-                                       random_test_lower_bound=0, random_test_upper_bound=0.5)
-        model_config = ModelConfig(fno_n_layer=5, fno_hidden_channels=48, fno_n_modes_height=20)
-        train_config = TrainConfig(n_epoch=100, learning_rate=1e-3, weight_decay=2e-4, batch_size=1024)
+        train_config = TrainConfig(n_epoch=100, learning_rate=3e-3, weight_decay=2e-6, batch_size=4096)
+    elif model_name == 'DeepONet':
+        model_config = ModelConfig(deeponet_hidden_size=64, deeponet_n_layer=5)
+        train_config = TrainConfig(n_epoch=100, learning_rate=3e-3, weight_decay=1.5e-2, batch_size=4096)
+    elif model_name == 'GRU':
+        model_config = ModelConfig(gru_n_layer=5, gru_hidden_size=64)
+        train_config = TrainConfig(n_epoch=100, learning_rate=9.5e-3, weight_decay=5e-6, batch_size=4096)
+    elif model_name == 'LSTM':
+        model_config = ModelConfig(lstm_n_layer=5, lstm_hidden_size=64)
+        train_config = TrainConfig(n_epoch=100, learning_rate=9e-3, weight_decay=8.5e-4, batch_size=4096)
+    elif model_name == 'FNO+GRU':
+        model_config = ModelConfig(fno_n_modes_height=24, fno_hidden_channels=128, fno_n_layer=3, gru_n_layer=5,
+                                   gru_hidden_size=64)
+        train_config = TrainConfig(n_epoch=100, learning_rate=6e-3, weight_decay=2e-4, batch_size=4096)
+    elif model_name == 'DeepONet+GRU':
+        model_config = ModelConfig(deeponet_hidden_size=128, deeponet_n_layer=3, gru_n_layer=5, gru_hidden_size=64)
+        train_config = TrainConfig(n_epoch=100, learning_rate=0.62e-3, weight_decay=8e-2, batch_size=4096)
     else:
-        raise NotImplementedError(f'Unknown system: {system_}')
-
-    dataset_config.system_ = system_
-    model_config.system = system_
-    train_config.system = system_
+        raise NotImplementedError(f'Unknown model: {model_name}')
+    model_config.model_name = model_name
     return dataset_config, model_config, train_config
 
 
