@@ -1,30 +1,30 @@
 # Neural operators for predictor feedback control of nonlinear systems
 
-The source code for the paper titled _Neural operators for predictor feedback control of nonlinear systems_
+The source code for the paper titled _Neural Operators for Predictor Feedback Control of Nonlinear Systems_
 
 ## Environment
 
 We mainly rely on [pytorch](https://pytorch.org/).
-Please first install pytorch following the instruction from the website.
+Please first install Pytorch by following the instructions on the website.
 
-Besides, two packages are required and installed by
+Besides, the following packages are required and installed by
 ```
-pip install tqdm neuraloperator
+pip install tqdm neuraloperator torch_harmonics
 ```
 
 ## Reproduce our result
 
 ### Model training
 
-Run the following file with different model architecture to reproduce the training procedure.
+Run the following file with different model architectures to reproduce the training procedure.
 
 ```shell
 python train.py -model_name FNO 
 ```
 Available architectures are FNO, DeepONet, GRU, LSTM, FNO+GRU, and DeepONet+GRU.
 
-This will first generation the data by numerical successive approximation, and then train the model.
-The models' weights are saved as '<system>.pth'. The weights are already available in this repository, and you may skip this step.
+This will first generate the data by numerical successive approximation and then train the model.
+The models' weights are saved as '<system>.pth' The weights are already available in this repository, and you may skip this step.
 
 To save time, the data generation is turned off by default in our script.
 You can download the pkl files of numerical simulation results directly via
